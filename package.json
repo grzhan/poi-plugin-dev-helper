@@ -21,7 +21,7 @@
   "homepage": "https://github.com/kcwikizh/poi-plugin-dev-helper#readme",
   "poiPlugin": {
     "title": "kcwiki开发者辅助工具",
-    "icon": "pie-chart",
+    "icon": "wrench",
     "description": "调试游戏请求，上传游戏数据",
     "priority": 100
   }
