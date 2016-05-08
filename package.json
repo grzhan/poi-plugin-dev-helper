@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kcwikizh/poi-plugin-dev-helper.git"
+    "url": "git+https://github.com/grzhan/poi-plugin-dev-helper.git"
   },
   "author": {
     "name": "Grzhan",
@@ -16,9 +16,9 @@
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/kcwikizh/poi-plugin-dev-helper/issues"
+    "url": "https://github.com/grzhan/poi-plugin-dev-helper/issues"
   },
-  "homepage": "https://github.com/kcwikizh/poi-plugin-dev-helper#readme",
+  "homepage": "https://github.com/grzhan/poi-plugin-dev-helper#readme",
   "poiPlugin": {
     "title": "kcwiki开发者辅助工具",
     "icon": "wrench",
