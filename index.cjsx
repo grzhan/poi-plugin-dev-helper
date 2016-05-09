@@ -20,6 +20,7 @@ module.exports =
       enableGameReqDebug: dbg.extra('gameRequest').isEnabled()
       enableGameRepDebug: dbg.extra('gameResponse').isEnabled()
       start2Path: config.get("poi.dev.helper.start2Path", APPDATA_PATH)
+      uploadAuthPassword: localStorage.getItem('devHelperUploadPassword')
     componentDidMount: ->
       window.addEventListener 'game.request', @handleGameRequest
     componentWillUnmount: ->
@@ -53,12 +54,19 @@ module.exports =
         start2Path: pathname
     handleSaveStart2: async (e) ->
       {start2Path} = @state
-      console.log path
       savePath = path.join start2Path,'api_start2.json'
       err = yield fs.writeFileAsync savePath, localStorage.getItem('start2Body')
       console.error err if err
       toggleModal('保存 API START2', "保存至 #{savePath} 成功！") if not err
       toggleModal('保存 API START2', "保存至 #{savePath} 失败，请打开开发者工具检查错误信息。") if err
+    handleSetPassword: (e) ->
+      {uploadAuthPassword} = @state
+      uploadAuthPassword = @refs.uploadAuthPassword.getValue()
+      localStorage.setItem 'devHelperUploadPassword', uploadAuthPassword
+      @setState
+        uploadAuthPassword: uploadAuthPassword
+    selectInput: (id) ->
+      document.getElementById(id).select()
     testStart2Path: () ->
       {start2Path} = @state
       console.log start2Path
@@ -98,12 +106,20 @@ module.exports =
                 </Button>
               </Col>
             </Row>
+            <Row style={marginTop: 10}>
+              <Col xs={6}>
+                <Input type="password" ref="uploadAuthPassword" id="devHelperSetPassword"
+                  value={@state.uploadAuthPassword}
+                  onChange={@handleSetPassword}
+                  onClick={@selectInput.bind @, 'devHelperSetPassword'}
+                  placeholder='请输入api.kcwki.moe服务器上传密码'
+                  style={borderRadius: '5px', width: '90%', margin: '0 auto'} />
+              </Col>
               <Col xs={6}>
                 <Button ref="start2Path" bsStyle={'success'} style={width: '100%'} onClick={@testStart2Path} style={width: '100%'}>
                   上传到服务器
                 </Button>
               </Col>
-            <Row>
             </Row>
           </Grid>
         </div>
