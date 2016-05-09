@@ -1,4 +1,4 @@
-{_, SERVER_HOSTNAME, APPDATA_PATH} = window
+{_, SERVER_HOSTNAME, APPDATA_PATH, toggleModal, React} = window
 Promise = require 'bluebird'
 path = require 'path-extra'
 fs = Promise.promisifyAll require('fs-extra'), { multiArgs: true }
@@ -19,15 +19,17 @@ module.exports =
     getInitialState: ->
       enableGameReqDebug: dbg.extra('gameRequest').isEnabled()
       enableGameRepDebug: dbg.extra('gameResponse').isEnabled()
-      start2Path: APPDATA_PATH
+      start2Path: config.get("poi.dev.helper.start2Path", APPDATA_PATH)
     componentDidMount: ->
       window.addEventListener 'game.request', @handleGameRequest
     componentWillUnmount: ->
       window.removeEventListener 'game.request', @handleGameRequest
     handleGameRequest: (e) ->
-      {path, body} = e.detail
-      if dbg.extra('gameRequest').isEnabled()
-        dbg._getLogFunc()(new GameRequest(path, body))
+      ((path) ->
+        {path, body} = e.detail
+        if dbg.extra('gameRequest').isEnabled()
+          dbg._getLogFunc()(new GameRequest(path, body))
+      )()
     handleGameReqDebug: (e) ->
       {enableGameReqDebug} = @state
       if !enableGameReqDebug
@@ -51,7 +53,12 @@ module.exports =
         start2Path: pathname
     handleSaveStart2: async (e) ->
       {start2Path} = @state
-
+      console.log path
+      savePath = path.join start2Path,'api_start2.json'
+      err = yield fs.writeFileAsync savePath, localStorage.getItem('start2Body')
+      console.error err if err
+      toggleModal('保存 API START2', "保存至 #{savePath} 成功！") if not err
+      toggleModal('保存 API START2', "保存至 #{savePath} 失败，请打开开发者工具检查错误信息。") if err
     testStart2Path: () ->
       {start2Path} = @state
       console.log start2Path
