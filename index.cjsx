@@ -8,6 +8,7 @@ dbg.extra('gameRequest')
 {Grid, Input, Col, Row, Button} = ReactBootstrap
 Divider = require './views/divider'
 FolderPickerConfig = require './views/folderpicker'
+HOST = 'api.kcwiki.moe'
 class GameRequest
   constructor: (@path, @body) ->
     Object.defineProperty @, 'ClickToCopy -->',
@@ -68,6 +69,7 @@ module.exports =
         uploadAuthPassword: uploadAuthPassword
     handleUploadStart2: async (e) ->
       {uploadAuthPassword, uploading} = @state
+      return if uploading
       @setState
         uploading: true
       [response, repData] = yield request.postAsync "http://#{HOST}/start2/upload",
@@ -76,9 +78,11 @@ module.exports =
           data: localStorage.getItem('start2Body')
       @setState
         uploading: false
-      if repData?.result is 'success'
+      rep = JSON.parse(repData) if repData
+      if rep?.result is 'success'
         toggleModal('上传 API START2', "上传至 api.kcwiki.moe 成功！")
       else
+        console.error rep?.reason
         toggleModal('上传 API START2', "保存至 api.kcwiki.moe 失败，请打开开发者工具检查错误信息。")
     selectInput: (id) ->
       document.getElementById(id).select()
@@ -131,8 +135,8 @@ module.exports =
                   style={borderRadius: '5px', width: '90%', margin: '0 auto'} />
               </Col>
               <Col xs={6}>
-                <Button ref="start2Path" bsStyle={if state?.uploading then 'danger' else 'success'} style={width: '100%'} onClick={@handleUploadStart2} style={width: '100%'}>
-                  {if state?.uploading then '上传中...' else '上传到服务器'}
+                <Button ref="start2Path" bsStyle={if @state?.uploading then 'warning' else 'success'} style={width: '100%'} onClick={@handleUploadStart2} style={width: '100%'}>
+                  {if @state?.uploading then '上传中...' else '上传到服务器'}
                 </Button>
               </Col>
             </Row>
