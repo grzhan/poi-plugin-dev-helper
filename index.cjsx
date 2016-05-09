@@ -86,21 +86,18 @@ module.exports =
         toggleModal('上传 API START2', "保存至 api.kcwiki.moe 失败，请打开开发者工具检查错误信息。")
     selectInput: (id) ->
       document.getElementById(id).select()
-    testStart2Path: () ->
-      {start2Path} = @state
-      console.log start2Path
     render: ->
       <form style={padding: '0 10px'}>
         <div className="form-group">
           <Divider text={"调试日志"} />
           <Grid>
             <Row>
-              <Col xs={6}>
+              <Col lg={6} md={12} style={marginTop: 10}>
                 <Button bsStyle={if @state?.enableGameReqDebug then 'success' else 'danger'} onClick={@handleGameReqDebug} style={width: '100%'}>
                    {if @state.enableGameReqDebug then '√ ' else ''}游戏HTTP请求日志
                 </Button>
               </Col>
-              <Col xs={6}>
+              <Col lg={6} md={12} style={marginTop: 10}>
                 <Button bsStyle={if @state?.enableGameRepDebug then 'success' else 'danger'} onClick={@handleGameRepDebug} style={width: '100%'}>
                    {if @state.enableGameRepDebug then '√ ' else ''}游戏HTTP响应日志
                 </Button>
@@ -112,21 +109,21 @@ module.exports =
           <Divider text={"API START2"} />
           <Grid>
             <Row>
-              <Col xs={6}>
+              <Col lg={6} md={12} style={marginTop: 10}>
                 <FolderPickerConfig
                   label="本地保存目录"
                   configName="poi.dev.helper.start2Path"
                   defaultVal=APPDATA_PATH
                   onNewVal={@handleFolderPickerNewVal} />
               </Col>
-              <Col xs={6}>
+              <Col lg={6} md={12} style={marginTop: 10}>
                 <Button bsStyle={'success'} style={width: '100%'} onClick={@handleSaveStart2} style={width: '100%'}>
                   保存为本地文件
                 </Button>
               </Col>
             </Row>
-            <Row style={marginTop: 10}>
-              <Col xs={6}>
+            <Row>
+              <Col lg={6} md={12} style={marginTop: 10}>
                 <Input type="password" ref="uploadAuthPassword" id="devHelperSetPassword"
                   value={@state.uploadAuthPassword}
                   onChange={@handleSetPassword}
@@ -134,7 +131,7 @@ module.exports =
                   placeholder='请输入api.kcwki.moe服务器上传密码'
                   style={borderRadius: '5px', width: '90%', margin: '0 auto'} />
               </Col>
-              <Col xs={6}>
+              <Col lg={6} md={12} style={marginTop: 10}>
                 <Button ref="start2Path" bsStyle={if @state?.uploading then 'warning' else 'success'} style={width: '100%'} onClick={@handleUploadStart2} style={width: '100%'}>
                   {if @state?.uploading then '上传中...' else '上传到服务器'}
                 </Button>
