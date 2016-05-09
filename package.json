@@ -24,5 +24,9 @@
     "icon": "wrench",
     "description": "调试游戏请求，上传游戏数据",
     "priority": 100
+  },
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-watch": "^4.3.5"
   }
 }
