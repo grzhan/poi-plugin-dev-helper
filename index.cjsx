@@ -23,15 +23,47 @@ module.exports =
       start2Path: config.get("poi.dev.helper.start2Path", APPDATA_PATH)
       uploadAuthPassword: localStorage.getItem('devHelperUploadPassword')
       uploading: false
+      mapArea: 0
+      mapInfo: 0
+      cellId: 0
+      nextCell: ''
+      cellUploading: false
+      isSortie: false
     componentDidMount: ->
       window.addEventListener 'game.request', @handleGameRequest
+      window.addEventListener 'game.response', @handleGameResponse
     componentWillUnmount: ->
       window.removeEventListener 'game.request', @handleGameRequest
+      window.removeEventListener 'game.response', @handleGameResponse
     handleGameRequest: (e) ->
       ((path) ->
         {path, body} = e.detail
         if dbg.extra('gameRequest').isEnabled()
           dbg._getLogFunc()(new GameRequest(path, body))
+      )()
+    handleGameResponse: (e) ->
+      that = @
+      ((path) ->
+        {path, body} = e.detail
+        switch path
+          when '/kcsapi/api_req_map/start'
+            {mapArea, mapInfo, cellId, isSortie} = that.state
+            that.setState
+              isSortie: true
+              mapArea: body.api_maparea_id
+              mapInfo: body.api_mapinfo_no
+              cellId: body.api_no
+          when '/kcsapi/api_req_map/next'
+            {mapArea, mapInfo, cellId, isSortie} = that.state
+            that.setState
+              isSortie: true
+              mapArea: body.api_maparea_id
+              mapInfo: body.api_mapinfo_no
+              cellId: body.api_no
+          when '/kcsapi/api_port/port'
+            {isSortie} = that.state
+            that.setState
+              isSortie: false
       )()
     handleGameReqDebug: (e) ->
       {enableGameReqDebug} = @state
@@ -78,12 +110,52 @@ module.exports =
           data: localStorage.getItem('start2Body')
       @setState
         uploading: false
-      rep = JSON.parse(repData) if repData
+      try
+        rep = JSON.parse(repData) if repData
+      catch err
+        console.error "#{err.message}"
+        console.log repData
+        toggleModal('上传 API START2', "保存至 api.kcwiki.moe 失败，请打开开发者工具检查错误信息。")
+        @setState
+          cellUploading: false
+        return
       if rep?.result is 'success'
         toggleModal('上传 API START2', "上传至 api.kcwiki.moe 成功！")
       else
         console.error rep?.reason
         toggleModal('上传 API START2', "保存至 api.kcwiki.moe 失败，请打开开发者工具检查错误信息。")
+    handleSetNextCell: (e) ->
+      {nextCell} = @state
+      nextCell = @refs.nextCell.getValue()
+      @setState
+        nextCell: nextCell
+    handleUploadMapCell: async (e) ->
+      {nextCell, cellUploading, mapArea, mapInfo, cellId} = @state
+      return if cellUploading
+      @setState
+        cellUploading: true
+      [response, repData] = yield request.postAsync "http://#{HOST}/map/cell",
+        form:
+          mapArea: mapArea
+          mapInfo: mapInfo
+          cellNo: nextCell
+          cellId: cellId
+      try
+        rep = JSON.parse(repData) if repData
+      catch err
+        console.error "#{err.message}"
+        console.log repData
+        toggleModal('上传 Map Cell ID', "保存至 api.kcwiki.moe 失败，请打开开发者工具检查错误信息。")
+        @setState
+          cellUploading: false
+        return
+      if rep?.result is 'success'
+        toggleModal('上传 Map Cell ID', "上传至 api.kcwiki.moe 成功！")
+      else
+        console.error rep?.reason
+        toggleModal('上传 Map Cell ID', "保存至 api.kcwiki.moe 失败，请打开开发者工具检查错误信息。")
+      @setState
+        cellUploading: false
     selectInput: (id) ->
       document.getElementById(id).select()
     render: ->
@@ -132,8 +204,37 @@ module.exports =
                   style={borderRadius: '5px', width: '90%', margin: '0 auto'} />
               </Col>
               <Col lg={6} md={12} style={marginTop: 10}>
-                <Button ref="start2Path" bsStyle={if @state?.uploading then 'warning' else 'success'} style={width: '100%'} onClick={@handleUploadStart2} style={width: '100%'}>
+                <Button ref="start2Path" bsStyle={if @state?.uploading then 'warning' else 'success'} style={width: '100%'} onClick={@handleUploadStart2}>
                   {if @state?.uploading then '上传中...' else '上传到服务器'}
+                </Button>
+              </Col>
+            </Row>
+          </Grid>
+        </div>
+        <div className="form-group">
+          <Divider text={"地图点标记"} />
+          <Grid>
+            <Col sm={12} style={textAlign: 'center'} className={if @state?.isSortie then 'hidden-lg' else 'dummy'}>
+              尚未出击
+            </Col>
+            <Row style={textAlign: 'center'} className={if not @state?.isSortie then 'hidden-lg' else 'dummy'}>
+              <Col sm={12}>
+                当前所在海域： {@state.mapArea} - {@state.mapInfo}
+              </Col>
+              <Col sm={6} style={marginTop: 10, lineHeight: '40px'}>
+                地图点编号： {@state.cellId}
+              </Col>
+              <Col sm={6} style={marginTop: 10}>
+                <Input type="text" ref="nextCell" id="devHelperSetNextCell"
+                  value={@state.nextCell}
+                  onChange={@handleSetNextCell}
+                  onClick={@selectInput.bind @, 'devHelperSetNextCell'}
+                  placeholder='请输入地图下一个进入点ABC序号'
+                  style={borderRadius: '5px', width: '90%', margin: '0 auto'} />
+              </Col>
+              <Col sm={12} style={marginTop: 10}>
+                <Button ref="start2Path" bsStyle={if @state?.uploading then 'warning' else 'success'} style={width: '50%', margin: '0 auto'} onClick={@handleUploadMapCell}>
+                  {if @state?.cellUploading then '上传中...' else '上传到服务器'}
                 </Button>
               </Col>
             </Row>
