@@ -1,4 +1,4 @@
-# plugin-dev-helper
+# plugin-kcwiki-dev-helper
 
 ![plugin screenshot](http://7jpp1d.com1.z0.glb.clouddn.com/poi-plugin-dev-helper-screenshot.png)
 

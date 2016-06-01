@@ -1,6 +1,6 @@
 {
-  "name": "poi-plugin-dev-helper",
-  "version": "0.1.0-beta.0",
+  "name": "poi-plugin-kcwiki-dev-helper",
+  "version": "0.1.0",
   "description": "poi-plugin-dev-helper",
   "main": "index.cjsx",
   "scripts": {
