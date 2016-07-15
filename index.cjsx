@@ -104,16 +104,20 @@ module.exports =
       return if uploading
       @setState
         uploading: true
-      [response, repData] = yield request.postAsync "http://#{HOST}/start2/upload",
+      response = yield request.postAsync "http://#{HOST}/start2/upload",
         form: 
           password: uploadAuthPassword
           data: localStorage.getItem('start2Body')
+      repData = if response instanceof Array then response[1] else response.body
       @setState
         uploading: false
       try
         rep = JSON.parse(repData) if repData
       catch err
-        console.error "#{err.message}"
+        if err instanceof Error
+          console.error "#{err.name}: #{err.message}\n#{err.stack}"
+        else
+          console.error err
         console.log repData
         toggleModal('上传 API START2', "保存至 api.kcwiki.moe 失败，请打开开发者工具检查错误信息。")
         @setState
@@ -134,16 +138,20 @@ module.exports =
       return if cellUploading
       @setState
         cellUploading: true
-      [response, repData] = yield request.postAsync "http://#{HOST}/map/cell",
+      response = yield request.postAsync "http://#{HOST}/map/cell",
         form:
           mapArea: mapArea
           mapInfo: mapInfo
           cellNo: nextCell
           cellId: cellId
+      repData = if response instanceof Array then response[1] else response.body
       try
         rep = JSON.parse(repData) if repData
       catch err
-        console.error "#{err.message}"
+        if err instanceof Error
+          console.error "#{err.name}: #{err.message}\n#{err.stack}"
+        else
+          console.error err
         console.log repData
         toggleModal('上传 Map Cell ID', "保存至 api.kcwiki.moe 失败，请打开开发者工具检查错误信息。")
         @setState
