@@ -46,6 +46,8 @@ module.exports =
       ((path) ->
         {path, body} = e.detail
         switch path
+          when '/kcsapi/api_start2'
+            localStorage.setItem('start2Body', JSON.stringify(body))
           when '/kcsapi/api_req_map/start'
             {mapArea, mapInfo, cellId, isSortie} = that.state
             that.setState
